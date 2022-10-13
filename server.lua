@@ -148,9 +148,12 @@ RegisterNetEvent("glow_crafting_sv:attemptCraft", function(benchId, itemToCraft,
     local Player = QBCore.Functions.GetPlayer(src)
 
     local rep = Player.PlayerData.metadata.craftingrep
+    local electronicRep = Player.PlayerData.metadata.electroniccraftingrep
+    local ammoRep = Player.PlayerData.metadata.ammocraftingrep
     local attachmentRep = Player.PlayerData.metadata.attachmentcraftingrep
+    local weaponRep = Player.PlayerData.metadata.weaponcraftingrep
     
-    local isAttachment = false
+    local benchType = false
     local points = 0
     
     local hasRecipe = false
@@ -164,7 +167,7 @@ RegisterNetEvent("glow_crafting_sv:attemptCraft", function(benchId, itemToCraft,
                     local craftData = Config.blueprintRecipes[itemToCraft]
                     hasRecipe = true
                     points = craftData.points
-                    isAttachment = craftData.isAttachment
+                    benchType = craftData.benchType
                     components = craftData.components
                     itemName = craftData.label
                     break
@@ -175,18 +178,30 @@ RegisterNetEvent("glow_crafting_sv:attemptCraft", function(benchId, itemToCraft,
         local craftData = Config.defaultRecipes[itemToCraft]
         hasRecipe = true
         points = craftData.points
-        isAttachment = craftData.isAttachment
-    
-        if isAttachment then
+        benchType = craftData.benchType
+
+        if benchType == "electronic" then
+            if electronicRep < craftData.threshold then
+                return
+            end
+        elseif benchType == "ammo" then
+            if ammoRep < craftData.threshold then
+                return
+            end
+        elseif benchType == "attachment" then
             if attachmentRep < craftData.threshold then
                 return
             end
-        else
+        elseif benchType == "weapon" then
+            if weaponRep < craftData.threshold then
+                return
+            end
+        elseif benchType == "base" then
             if rep < craftData.threshold then
                 return
             end
         end
-        
+
         components = craftData.components
         itemName = craftData.label
     end
@@ -215,10 +230,19 @@ RegisterNetEvent("glow_crafting_sv:attemptCraft", function(benchId, itemToCraft,
                     Player.Functions.RemoveItem(v.item, v.takeAmount)
                 end
 
-                if isAttachment then
+                if benchType == "electronic" then
+                    Player.Functions.SetMetaData("electroniccraftingrep", electronicRep + (points * amount))
+                    TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, electronicRep + (points * amount))
+                elseif benchType == "ammo" then
+                    Player.Functions.SetMetaData("ammocraftingrep", ammoRep + (points * amount))
+                    TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, ammoRep + (points * amount))
+                elseif benchType == "attachment" then
                     Player.Functions.SetMetaData("attachmentcraftingrep", attachmentRep + (points * amount))
                     TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, attachmentRep + (points * amount))
-                else
+                elseif benchType == "weapon" then
+                    Player.Functions.SetMetaData("weaponcraftingrep", weaponRep + (points * amount))
+                    TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, weaponRep + (points * amount))
+                elseif benchType == "base" then
                     Player.Functions.SetMetaData("craftingrep", rep + (points * amount))
                     TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep + (points * amount), attachmentRep)
                 end
@@ -257,10 +281,19 @@ RegisterNetEvent("glow_crafting_sv:attemptCraft", function(benchId, itemToCraft,
                     Player.Functions.RemoveItem(v.item, v.requiredPerCraft * maxCraft)
                 end 
 
-                if isAttachment then
+                if benchType == "electronic" then
+                    Player.Functions.SetMetaData("electroniccraftingrep", electronicRep + (points * maxCraft))
+                    TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, electronicRep + (points * maxCraft))
+                elseif benchType == "ammo" then
+                    Player.Functions.SetMetaData("ammocraftingrep", ammoRep + (points * maxCraft))
+                    TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, ammoRep + (points * maxCraft))
+                elseif benchType == "attachment" then
                     Player.Functions.SetMetaData("attachmentcraftingrep", attachmentRep + (points * maxCraft))
                     TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, attachmentRep + (points * maxCraft))
-                else
+                elseif benchType == "weapon" then
+                    Player.Functions.SetMetaData("weaponcraftingrep", weaponRep + (points * maxCraft))
+                    TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep, weaponRep + (points * maxCraft))
+                elseif benchType == "base" then
                     Player.Functions.SetMetaData("craftingrep", rep + (points * maxCraft))
                     TriggerClientEvent("glow_crafting_cl:increasedRep", src, rep + (points * maxCraft), attachmentRep)
                 end
