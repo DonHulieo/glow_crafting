@@ -15,10 +15,10 @@ local function loadAnimDict(dict)
     end
 end
 
-local function getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep)
+local function getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep, benchType)
     local playerDefaultRecipes = {}
     for k, v in pairs(Config.defaultRecipes) do
-            if v.benchId == currentBenchId or not v.benchId then
+        if v.benchType == benchType or not v.benchType then
             if v.benchType == "electronic" then
                 if electronicRep >= v.threshold then
                     playerDefaultRecipes[#playerDefaultRecipes + 1] = v
@@ -138,6 +138,78 @@ local function spawnObj(model, coords, heading, objExists)
                 },
                 distance = 1.5
             })
+        elseif model == 'gr_prop_gr_bench_01a' then
+            exports['qb-target']:AddBoxZone("WeaponCrafting", coords, 1, 4, {
+                name = "WeaponCrafting",
+                heading = heading,
+                debugPoly = false,
+                minZ = coords.z-0.8,
+                maxZ = coords.z+1.5,
+            }, {
+                options = { {
+                    icon = "fa-solid fa-gun",
+                    label = "Craft",
+                    action = function()
+                        TriggerServerEvent("glow_crafting_sv:getWorkBenchData")
+                    end
+                }
+                },
+                distance = 1.5
+            })
+        elseif model == 'gr_prop_gr_speeddrill_01b' then
+            exports['qb-target']:AddBoxZone("AmmoCrafting", coords, 1, 0.6, {
+                name = "AmmoCrafting",
+                heading = heading,
+                debugPoly = false,
+                minZ = coords.z-0.8,
+                maxZ = coords.z+1.8,
+            }, {
+                options = { {
+                    icon = "fa-solid fa-gun",
+                    label = "Craft",
+                    action = function()
+                        TriggerServerEvent("glow_crafting_sv:getWorkBenchData")
+                    end
+                }
+                },
+                distance = 1.5
+            })
+        elseif model == 'gr_prop_gr_bench_02a' then
+            exports['qb-target']:AddBoxZone("AttachmentCrafting", coords, 1, 2, {
+                name = "AttachmentCrafting",
+                heading = heading,
+                debugPoly = false,
+                minZ = coords.z-0.8,
+                maxZ = coords.z+1.5,
+            }, {
+                options = { {
+                    icon = "fa-solid fa-gun",
+                    label = "Craft",
+                    action = function()
+                        TriggerServerEvent("glow_crafting_sv:getWorkBenchData")
+                    end
+                }
+                },
+                distance = 1.5
+            })
+        elseif model == 'electronicbench' then
+            exports['qb-target']:AddBoxZone("ElectronicCrafting", coords, 1, 3.5, {
+                name = "ElectronicCrafting",
+                heading = heading,
+                debugPoly = false,
+                minZ = coords.z-0.6,
+                maxZ = coords.z+0.8,
+            }, {
+                options = { {
+                    icon = "fa-solid fa-bolt",
+                    label = "Craft",
+                    action = function()
+                        TriggerServerEvent("glow_crafting_sv:getWorkBenchData")
+                    end
+                }
+                },
+                distance = 1.5
+            })
         end
     end
 
@@ -151,6 +223,14 @@ local function loadBenches()
         end
     end
 end
+
+RegisterCommand("craftingrep", function()
+    QBCore.Functions.Notify("Your crafting rep is " .. PlayerData.metadata.craftingrep .. " and electronics rep is " ..PlayerData.metadata.electroniccraftingrep)
+end, false)
+
+RegisterCommand("weaponrep", function()
+    QBCore.Functions.Notify("Your weapon crafting rep is " .. PlayerData.metadata.weaponcraftingrep .. ", ammo rep is " ..PlayerData.metadata.ammocraftingrep .. " and attachment rep is " ..PlayerData.metadata.attachmentcraftingrep)
+end, false)
 
 RegisterNUICallback("discardBlueprint", function(data, cb)
     if currentBenchId then
@@ -175,8 +255,9 @@ RegisterNUICallback("close", function(data, cb)
 end)
 
 RegisterNetEvent("glow_crafting_cl:openCraftingBench", function(craftingBenchData, benchId)
-    currentBenchId = benchId
+    currentBenchId = benchId[1]
     local player = PlayerPedId()
+    local benchType = benchId[2]
     local craftingRep = PlayerData.metadata.craftingrep
     local electronicRep = PlayerData.metadata.electroniccraftingrep
     local ammoRep = PlayerData.metadata.ammocraftingrep
@@ -195,13 +276,13 @@ RegisterNetEvent("glow_crafting_cl:openCraftingBench", function(craftingBenchDat
         local blueprintRecipes = {}
         for k, v in pairs(craftingBenchData.blueprints) do
             if Config.blueprintRecipes[v] then
-                if Config.blueprintRecipes[v].benchId == currentBenchId or not Config.blueprintRecipes[v].benchId then
+                if Config.blueprintRecipes[v].benchType == benchType or not Config.blueprintRecipes[v].benchType then
                     blueprintRecipes[#blueprintRecipes + 1] = Config.blueprintRecipes[v]
                 end
             end
         end
 
-        local defaultRecipes = getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep)
+        local defaultRecipes = getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep, benchType)
         currentDefaultRecipes = defaultRecipes
 
         SendNUIMessage({
@@ -210,7 +291,7 @@ RegisterNetEvent("glow_crafting_cl:openCraftingBench", function(craftingBenchDat
             default = defaultRecipes
         })
     else
-        local defaultRecipes = getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep)
+        local defaultRecipes = getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep, benchType)
         currentDefaultRecipes = defaultRecipes
 
         SendNUIMessage({
