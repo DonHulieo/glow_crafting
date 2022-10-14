@@ -18,7 +18,7 @@ end
 local function getThresholdRecipes(craftingRep, electronicRep, ammoRep, attachmentRep, weaponRep)
     local playerDefaultRecipes = {}
     for k, v in pairs(Config.defaultRecipes) do
-        if v.benchId == currentBenchId or not v.benchId then
+            if v.benchId == currentBenchId or not v.benchId then
             if v.benchType == "electronic" then
                 if electronicRep >= v.threshold then
                     playerDefaultRecipes[#playerDefaultRecipes + 1] = v
@@ -195,7 +195,7 @@ RegisterNetEvent("glow_crafting_cl:openCraftingBench", function(craftingBenchDat
         local blueprintRecipes = {}
         for k, v in pairs(craftingBenchData.blueprints) do
             if Config.blueprintRecipes[v] then
-                if Config.blueprintRecipes[v].benchType == currentBenchId or not Config.blueprintRecipes[v].benchType then
+                if Config.blueprintRecipes[v].benchId == currentBenchId or not Config.blueprintRecipes[v].benchId then
                     blueprintRecipes[#blueprintRecipes + 1] = Config.blueprintRecipes[v]
                 end
             end

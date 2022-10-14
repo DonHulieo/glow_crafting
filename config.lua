@@ -1,30 +1,23 @@
 Config = {}
 
--- Config.prop = 'gr_prop_gr_bench_04b'
-
 Config.craftingBenches = {
     {id = "pbase1", coords = vector3(97.51, 6618.9, 31.43), heading = 134.43, objExists = true, prop = 'prop_toolchest_05'},
     {id = "pspawn1", coords = vector3(429.16, 6478.77, 28.79), heading = 140.76, objExists = false, prop = 'gr_prop_gr_bench_04b'},
 }
 
-Config.benchList = {
-    base = {"pbase1", "pspawn1"},
-}
-
 --[[
-Make sure to change the image path to your inventory image file. Default is lj-inventory, you can change it to qb-inventory by doing this example below:
-    https://cfx-nui-qb-inventory/html/images/radio.png
+Make sure to change the image path to your inventory image file. Default is qb-inventory, you can change it to lj-inventory by doing this example below:
+    https://cfx-nui-lj-inventory/html/images/radio.png
 ]]
 
 -- Recipes that come with every workbench
 Config.defaultRecipes = {
-    radio = {
-        item = "radio",
-        label = "Radio",
-        image = "https://cfx-nui-qb-inventory/html/images/radio.png",
-        benchId = Config.benchList.base,
+    lockpick = {
+        item = "lockpick",
+        label = "Lockpick",
+        image = "https://cfx-nui-qb-inventory/html/images/lockpick.png",
+        benchId = false, -- Set to benchId for a specific bench or boxzone or to false for all benches
         benchType = "base",
-        -- isAttachment = false,
         threshold = 0,
         points = 1,
         components = {
@@ -41,9 +34,8 @@ Config.blueprintRecipes = {
         item = "advancedlockpick",
         label = "Advanced Lockpick",
         image = "https://cfx-nui-qb-inventory/html/images/advancedlockpick.png",
-        benchId = "pbase1",
+        benchId = "pspawn1",
         benchType = "base",
-        -- isAttachment = false,
         points = 1,
         components = {
             {item = "aluminum", label = "Aluminum", amount = 10, image = "https://cfx-nui-qb-inventory/html/images/aluminum.png"},
